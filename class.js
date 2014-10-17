@@ -34,14 +34,14 @@ module.exports = Class
 // })
 //
 Class.create = function(parent, properties) {
-  if (!isFunction(parent)) {
+  if (!isFunction(parent)) {//参数修正
     properties = parent
     parent = null
   }
 
   properties || (properties = {})
   parent || (parent = properties.Extends || Class)
-  properties.Extends = parent
+  properties.Extends = parent //后面需要把properties的属性拷贝到subClass上 所以这个属性也需要正确
 
   // The created class constructor
   function SubClass() {
@@ -49,7 +49,7 @@ Class.create = function(parent, properties) {
     parent.apply(this, arguments)
 
     // Only call initialize in self constructor.
-    if (this.constructor === SubClass && this.initialize) {
+    if (this.constructor === SubClass && this.initialize) {//调用properties里面传进来的initialize函数，方便开发者在初始化时的一些处理
       this.initialize.apply(this, arguments)
     }
   }
@@ -66,8 +66,8 @@ Class.create = function(parent, properties) {
   return classify(SubClass)
 }
 
-
-function implement(properties) {
+//拷贝properties的属性到子类的原型上
+function implement(properties) { //将properties的属性复制到调用者的原型上 如果属性是特殊属性 就用调用者去调用Mutators上对应的方法
   var key, value
 
   for (key in properties) {
@@ -91,7 +91,7 @@ Class.extend = function(properties) {
 }
 
 
-function classify(cls) {
+function classify(cls) {//Make subclass extendable
   cls.extend = Class.extend
   cls.implement = implement
   return cls
@@ -152,7 +152,7 @@ var createProto = Object.__proto__ ?
 // Helpers
 // ------------
 
-function mix(r, s, wl) {
+function mix(r, s, wl) { //将s自身身上的属性复制给r， 如果有wl(白名单) 就只复制白名单里的属性， 浅拷贝
   // Copy "all" properties including inherited ones.
   for (var p in s) {
     if (s.hasOwnProperty(p)) {
